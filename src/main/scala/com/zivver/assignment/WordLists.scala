@@ -9,6 +9,7 @@ import fs2.Stream
 import io.circe.Encoder
 
 import java.io.File
+import scala.collection.immutable.HashSet
 import scala.io.Source
 
 trait WordLists:
@@ -20,7 +21,7 @@ object WordLists:
   final case class Match(word: String, wordListName: String)
       derives Encoder.AsObject
 
-  final case class WordList(name: String, words: List[String])
+  final case class WordList(name: String, words: Set[String])
       derives Encoder.AsObject:
     def matches(text: String): IO[List[Match]] =
       IO {
@@ -49,7 +50,7 @@ object WordLists:
           }
           .use { source =>
             IO {
-              val words = source.getLines.map(_.toLowerCase()).toList
+              val words = HashSet() ++ source.getLines.map(_.toLowerCase())
               WordList(name, words)
             }
           }
